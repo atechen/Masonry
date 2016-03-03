@@ -30,14 +30,14 @@
     return self;
 }
 
-#pragma mark - MASConstraintDelegate
-
+#pragma mark - MASConstraintDelegate代理协议的实现
 - (void)constraint:(MASConstraint *)constraint shouldBeReplacedWithConstraint:(MASConstraint *)replacementConstraint {
     NSUInteger index = [self.childConstraints indexOfObject:constraint];
     NSAssert(index != NSNotFound, @"Could not find constraint %@", constraint);
     [self.childConstraints replaceObjectAtIndex:index withObject:replacementConstraint];
 }
 
+// 为新的约束属性创建MASViewConstraint对象，并将该对象添加到childConstraints中
 - (MASConstraint *)constraint:(MASConstraint __unused *)constraint addConstraintWithLayoutAttribute:(NSLayoutAttribute)layoutAttribute {
     id<MASConstraintDelegate> strongDelegate = self.delegate;
     MASConstraint *newConstraint = [strongDelegate constraint:self addConstraintWithLayoutAttribute:layoutAttribute];
@@ -66,8 +66,8 @@
     };
 }
 
-#pragma mark - MASLayoutPriority proxy
-
+// 设置约束优先级
+#pragma mark - 设置约束优先级
 - (MASConstraint * (^)(MASLayoutPriority))priority {
     return ^id(MASLayoutPriority priority) {
         for (MASConstraint *constraint in self.childConstraints) {
@@ -77,8 +77,8 @@
     };
 }
 
-#pragma mark - NSLayoutRelation proxy
-
+// 设置约束关系
+#pragma mark - 设置约束关系
 - (MASConstraint * (^)(id, NSLayoutRelation))equalToWithRelation {
     return ^id(id attr, NSLayoutRelation relation) {
         for (MASConstraint *constraint in self.childConstraints.copy) {
@@ -88,8 +88,8 @@
     };
 }
 
-#pragma mark - attribute chaining
-
+// 添加约束
+#pragma mark - 添加约束
 - (MASConstraint *)addConstraintWithLayoutAttribute:(NSLayoutAttribute)layoutAttribute {
     [self constraint:self addConstraintWithLayoutAttribute:layoutAttribute];
     return self;
@@ -121,8 +121,8 @@
     };
 }
 
-#pragma mark - NSLayoutConstraint constant setters
-
+// 设置NSLayoutConstraint的constant
+#pragma mark - 设置NSLayoutConstraint的constant
 - (void)setInsets:(MASEdgeInsets)insets {
     for (MASConstraint *constraint in self.childConstraints) {
         constraint.insets = insets;

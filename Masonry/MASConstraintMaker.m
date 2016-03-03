@@ -32,6 +32,7 @@
     return self;
 }
 
+#pragma mark - 安装约束的方法
 - (NSArray *)install {
     if (self.removeExisting) {
         NSArray *installedConstraints = [MASViewConstraint installedConstraintsForView:self.view];
@@ -48,33 +49,39 @@
     return constraints;
 }
 
-#pragma mark - MASConstraintDelegate
 
+#pragma mark - MASConstraintDelegate
 - (void)constraint:(MASConstraint *)constraint shouldBeReplacedWithConstraint:(MASConstraint *)replacementConstraint {
     NSUInteger index = [self.constraints indexOfObject:constraint];
     NSAssert(index != NSNotFound, @"Could not find constraint %@", constraint);
     [self.constraints replaceObjectAtIndex:index withObject:replacementConstraint];
 }
-
+// 为view创建MASConstraint对象的核心代码
 - (MASConstraint *)constraint:(MASConstraint *)constraint addConstraintWithLayoutAttribute:(NSLayoutAttribute)layoutAttribute {
+    //1. 为新添加的约束属性创建一个MASViewConstraint
     MASViewAttribute *viewAttribute = [[MASViewAttribute alloc] initWithView:self.view layoutAttribute:layoutAttribute];
     MASViewConstraint *newConstraint = [[MASViewConstraint alloc] initWithFirstViewAttribute:viewAttribute];
+    
+    //2. 如果原来的MASConstraint是一个MASViewConstraint类型的，则将原来的MASViewConstraint和新的MASViewConstraint组装成一个MASCompositeConstraint
     if ([constraint isKindOfClass:MASViewConstraint.class]) {
-        //replace with composite constraint
+        //将 新添加的约束 换成 约束组
         NSArray *children = @[constraint, newConstraint];
         MASCompositeConstraint *compositeConstraint = [[MASCompositeConstraint alloc] initWithChildren:children];
         compositeConstraint.delegate = self;
         [self constraint:constraint shouldBeReplacedWithConstraint:compositeConstraint];
         return compositeConstraint;
     }
+    //3. 如果原来的约束为nil，则将新的MASViewConstraint添加到数组中（这种情况只在Maker中添加约束的方法会出现）
     if (!constraint) {
         newConstraint.delegate = self;
         [self.constraints addObject:newConstraint];
     }
     return newConstraint;
 }
-
-- (MASConstraint *)addConstraintWithAttributes:(MASAttribute)attrs {
+#pragma mark - 使用MASAttribute枚举创建约束
+//使用MASAttribute枚举创建约束
+- (MASConstraint *)addConstraintWithAttributes:(MASAttribute)attrs
+{
     __unused MASAttribute anyAttribute = (MASAttributeLeft | MASAttributeRight | MASAttributeTop | MASAttributeBottom | MASAttributeLeading
                                           | MASAttributeTrailing | MASAttributeWidth | MASAttributeHeight | MASAttributeCenterX
                                           | MASAttributeCenterY | MASAttributeBaseline
@@ -126,8 +133,8 @@
     return constraint;
 }
 
+#pragma mark - 添加约束的方法
 #pragma mark - standard Attributes
-
 - (MASConstraint *)addConstraintWithLayoutAttribute:(NSLayoutAttribute)layoutAttribute {
     return [self constraint:nil addConstraintWithLayoutAttribute:layoutAttribute];
 }

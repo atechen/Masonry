@@ -22,8 +22,8 @@
 	return [super init];
 }
 
+// 设置约束的关系
 #pragma mark - NSLayoutRelation proxies
-
 - (MASConstraint * (^)(id))equalTo {
     return ^id(id attribute) {
         return self.equalToWithRelation(attribute, NSLayoutRelationEqual);
@@ -60,8 +60,8 @@
     };
 }
 
+// 设置优先级
 #pragma mark - MASLayoutPriority proxies
-
 - (MASConstraint * (^)())priorityLow {
     return ^id{
         self.priority(MASLayoutPriorityDefaultLow);
@@ -83,8 +83,8 @@
     };
 }
 
+// 设置NSLayoutConstraint的constant
 #pragma mark - NSLayoutConstraint constant proxies
-
 - (MASConstraint * (^)(MASEdgeInsets))insets {
     return ^id(MASEdgeInsets insets){
         self.insets = insets;
@@ -126,8 +126,6 @@
     return nil;
 }
 
-#pragma mark - NSLayoutConstraint constant setter
-
 - (void)setLayoutConstantWithValue:(NSValue *)value {
     if ([value isKindOfClass:NSNumber.class]) {
         self.offset = [(NSNumber *)value doubleValue];
@@ -158,7 +156,8 @@
     return self;
 }
 
-#pragma mark - Chaining
+// 创建约束
+#pragma mark - 创建约束
 
 - (MASConstraint *)addConstraintWithLayoutAttribute:(NSLayoutAttribute __unused)layoutAttribute {
     MASMethodNotImplemented();

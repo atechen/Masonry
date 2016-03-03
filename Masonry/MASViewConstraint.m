@@ -40,10 +40,12 @@ static char kInstalledConstraintsKey;
 @property (nonatomic, strong, readwrite) MASViewAttribute *secondViewAttribute;
 @property (nonatomic, weak) MAS_VIEW *installedView;
 @property (nonatomic, weak) MASLayoutConstraint *layoutConstraint;
+// 计算一个约束的必须值
 @property (nonatomic, assign) NSLayoutRelation layoutRelation;
 @property (nonatomic, assign) MASLayoutPriority layoutPriority;
 @property (nonatomic, assign) CGFloat layoutMultiplier;
 @property (nonatomic, assign) CGFloat layoutConstant;
+// 
 @property (nonatomic, assign) BOOL hasLayoutRelation;
 @property (nonatomic, strong) id mas_key;
 @property (nonatomic, assign) BOOL useAnimator;
@@ -154,8 +156,8 @@ static char kInstalledConstraintsKey;
     };
 }
 
+//设置当前约束的优先级
 #pragma mark - MASLayoutPriority proxy
-
 - (MASConstraint * (^)(MASLayoutPriority))priority {
     return ^id(MASLayoutPriority priority) {
         NSAssert(!self.hasBeenInstalled,
@@ -166,8 +168,8 @@ static char kInstalledConstraintsKey;
     };
 }
 
+//设置当前约束的关系
 #pragma mark - NSLayoutRelation proxy
-
 - (MASConstraint * (^)(id, NSLayoutRelation))equalToWithRelation {
     return ^id(id attribute, NSLayoutRelation relation) {
         if ([attribute isKindOfClass:NSArray.class]) {
@@ -229,8 +231,8 @@ static char kInstalledConstraintsKey;
     };
 }
 
+// 布局：根据约束属性类型，设置约束的constant值
 #pragma mark - NSLayoutConstraint constant setters
-
 - (void)setInsets:(MASEdgeInsets)insets {
     NSLayoutAttribute layoutAttribute = self.firstViewAttribute.layoutAttribute;
     switch (layoutAttribute) {
@@ -286,7 +288,6 @@ static char kInstalledConstraintsKey;
 }
 
 #pragma mark - MASConstraint
-
 - (void)activate {
     if ([self supportsActiveProperty] && self.layoutConstraint) {
         if (self.hasBeenInstalled) {
@@ -308,6 +309,8 @@ static char kInstalledConstraintsKey;
     }
 }
 
+#pragma mark - 添加/删除约束
+//为view添加约束的核心代码
 - (void)install {
     if (self.hasBeenInstalled) {
         return;
@@ -385,7 +388,7 @@ static char kInstalledConstraintsKey;
     }
     return nil;
 }
-
+// 删除约束
 - (void)uninstall {
     [self.installedView removeConstraint:self.layoutConstraint];
     self.layoutConstraint = nil;
